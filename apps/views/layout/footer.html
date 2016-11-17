@@ -1,0 +1,37 @@
+<div class="p-a text-xs">
+	<div class="pull-right text-muted">
+		&copy; Copyright
+		<strong><?php echo $this->params['app_name']?></strong>
+		<span class="hidden-xs-down">-
+			<?php
+			$text  = $this->trans->get('power_by');
+			$text .= ' '.$this->params['author'];
+			$text .= ' '.$this->trans->get('version');
+			$text .= ' '.$this->params['version'];
+			echo $text;
+			?>
+		</span>
+		<a ui-scroll-to="content"><i class="fa fa-long-arrow-up p-x-sm"></i></a>
+	</div>
+	<div class="nav">
+		<a class="nav-link" href="#"></a>
+	</div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modal-confirm-delete">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header" data-table="<?php echo $this->data['table']?>">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title"><?php echo $this->trans->get('title_delete')?></h4>
+      </div>
+      <div class="modal-body" data-confirm="<?php echo $this->trans->get('confirm_delete_record_id')?>">
+        <p>One fine body&hellip;</p>
+      </div>
+      <div class="modal-footer" data-error="<?php echo $this->trans->get('error')?>">
+        <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo $this->trans->get('close')?></button>
+        <button type="button" class="btn btn-primary dark" id="btn-confirm-delete"><?php echo $this->trans->get('confirm')?></button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

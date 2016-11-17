@@ -1,0 +1,119 @@
+<?php
+use Apps\Models\Menu;
+function generateSiteMap( $id,$baseUrl='',$lang='en'){
+	$menu = Menu::findByParentId( $id );
+	$tpl  = '<ul>';
+	foreach( $menu as $_menu ){
+		$tpl .= '<li>';
+		if( is_numeric($_menu->page_id) && $_menu->page_id > 0){
+			$tpl .= '<a href="'.$baseUrl.'page-view/' . $_menu->page_id . '">';
+		}elseif(is_numeric($_menu->post_id) && $_menu->post_id > 0){
+			$tpl .= '<a href="'.$baseUrl.'post-view/' . $_menu->post_id . '">';
+		}elseif(is_numeric($_menu->category_id) && $_menu->category_id > 0){
+			$tpl .= '<a href="'.$baseUrl.'post-group/' . $_menu->category_id . '">';
+		}elseif($_menu->url != ''){
+			$tpl .= '<a href="'.$_menu->url . '">';
+		}
+		$tpl .= ($lang=='en')? empty($_menu->name_en) ? $_menu->name : $_menu->name_en : $_menu->name;
+		if( (is_numeric($_menu->page_id) && $_menu->page_id > 0)
+			|| (is_numeric($_menu->post_id) && $_menu->post_id > 0)
+			|| (is_numeric($_menu->category_id) && $_menu->category_id > 0)
+			|| $_menu->url != '' ){
+			$tpl .= '</a>';
+		}
+		$tpl .=	generateSiteMap($_menu->menu_id, $baseUrl, $lang);
+		$tpl .= '</li>';
+	}
+	$tpl .= '</ul>';
+	return $tpl;
+}
+?>
+<?php if( !empty($this->data['menu'])){?>
+<div class="clearfix"></div>
+<div class="b-b b-primary nav-active-primary button-sitemap">
+        	<ul class="nav nav-tabs container">
+        	  <li class="nav-item">
+        	    <a class="nav-link active" href="#section-sitemap" data-toggle="collapse"><i class="fa fa-fw fa-sitemap"></i>ผังเว็บไซต์</a>
+        	  </li>
+        	</ul>
+        </div>
+<div id="section-sitemap" class="section bg-grey-medium collapse">
+	<div class="container">
+		<div class="row">
+			<?php
+			$loop = 1;
+			foreach($this->data['menu'] as $menu){
+				if( $loop%3 == 1 ){
+					echo '<div class="clearfix"></div>';
+				}
+			?>
+			<div class="col-md-4 block-sitemap">
+				<?php
+					if( is_numeric($menu->page_id) && $menu->page_id > 0){
+						echo '<a href="'.$baseUrl.'page-view/' . $menu->page_id . '">';
+					}elseif(is_numeric($menu->post_id) && $menu->post_id > 0){
+						echo '<a href="'.$baseUrl.'post-view/' . $menu->post_id . '">';
+					}elseif(is_numeric($menu->category_id) && $menu->category_id > 0){
+						echo '<a href="'.$baseUrl.'post-group/' . $menu->category_id . '">';
+					}elseif($menu->url != ''){
+						echo '<a href="'.$menu->url . '">';
+					}
+				?>
+				<h4><?php echo ($this->data['lang']=='en')? empty($menu->name_en)?$menu->name : $menu->name_en : $menu->name?></h4>
+				<?php
+				if( (is_numeric($menu->page_id) && $menu->page_id > 0)
+					|| (is_numeric($menu->post_id) && $menu->post_id > 0)
+					|| (is_numeric($menu->category_id) && $menu->category_id > 0)
+					|| $menu->url != '' ){
+					echo '</a>';
+				}
+				?>
+				<?php echo generateSiteMap($menu->menu_id, $this->data['baseUrl'], $this->data['lang']);?>
+			</div>
+			<?php $loop++;}?>
+		</div>
+	</div>
+</div>
+<?php }?>
+<div class="section bg-grey-dark bg-blue" id="section-footer">
+    <div class="container">
+        <div class="row">
+			<div class="col-md-8 col-xs-12">
+				<h6 class=" ">สถาบันวิจัยสมุนไพร กรมวิทยาศาสตร์การแพทย์ กระทรวงสาธารณสุข 88/7 ซอยติวานนท์
+				14 ต.ตลาดขวัญ อ.เมือง จ.นนทบุรี 11000 โทร. 0-2951-0491 แฟ๊กซ์. 0-2589-9866   E-Mail : mpri_dmsc@dmsc.mail.go.th&nbsp;
+				<br>เงื่อนไขการให้บริการเว็บไซต์ : Website Policy : Privacy Policy : : Website Security Policy</br>
+				© สงวนสิทธิ์ พ.ศ. 2559&nbsp;&nbsp;สถาบันวิจัยสมุนไพร  กรมวิทยาศาสตร์การแพทย์  กระทรวงสาธารณสุข&nbsp;
+<br>Responsive Version</br></h6>
+			</div>
+			<div class="col-md-4 col-xs-12 text-right">
+				<a href="" class="btn btn-icon btn-social rounded btn-social-colored indigo" title="Facebook">
+					<i class="fa fa-facebook"></i>
+					<i class="fa fa-facebook"></i>
+				</a>
+				<a href="" class="btn btn-icon btn-social rounded btn-social-colored light-blue" title="Twitter">
+					<i class="fa fa-twitter"></i>
+					<i class="fa fa-twitter"></i>
+				</a>
+			</div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="block-search">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				<h4 class="modal-title"><?php echo $this->trans->get('search')?></h4>
+			</div>
+			<div class="modal-body">
+				<form role="form" action="<?php echo $baseUrl."search/"?>" method="POST" ui-jp="parsley" class="text-right">
+					<div class="form-group">
+						<input class="form-control" id="inputKeyword" name="keyword" placeholder="<?php echo $this->trans->get('keyword')?>" type="search" required>
+					</div>
+					<button type="submit" class="btn btn-primary"><?php echo $this->trans->get('submit')?></button>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>

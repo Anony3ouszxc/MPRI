@@ -1,0 +1,275 @@
+<?php
+	use Apps\Models\Role;
+	$baseUrl    = $this->data['baseUrl'];
+	$isAdmin    = $this->data['isAdmin'];
+	$roleAccess = $this->data['roleAccess'];
+?>
+<!-- fluid app aside -->
+<div class="left navside dark dk" layout="column">
+	<div class="navbar no-radius">
+		<div>
+			<!-- brand -->
+			<a class="navbar-brand">
+				<img src="<?php echo $baseUrl . $this->params['logo']?>" alt=".">
+				<span class="hidden-folded inline"><?php echo $this->params['app_name']?></span>
+			</a>
+			<!-- / brand -->
+		</div>
+	</div>
+	<div flex class="hide-scroll">
+		<nav class="scroll nav-light">
+			<div>
+				<ul class="nav" ui-nav>
+					<li class="nav-header hidden-folded">
+						<small class="text-muted"><?php echo $this->trans->get('main_menu')?></small>
+					</li>
+					<li
+					class="<?php if(!empty($this->data['isDashboard'])){ echo 'active'; } ?>">
+						<a href="<?php echo $baseUrl?>admin/dashboard" class="no-ajax">
+							<span class="nav-icon">
+								<i class="material-icons">&#xe3fc;<span ui-include="'/assets/themeforest/assets/images/i_0.svg'"></span></i>
+							</span>
+							<span class="nav-text"><?php echo $this->trans->get('dashboard')?></span>
+						</a>
+					</li>
+					<li class="nav-header hidden-folded">
+						<small class="text-muted"><?php echo $this->trans->get('features')?></small>
+					</li>
+					<?php if(!empty($roleAccess['menu_see']) || $isAdmin){?>
+					<!-- HOME -->
+					<li class="<?php if(!empty($this->data['isMain'])){ echo 'active'; }?>">
+						<a>
+							<span class="nav-caret">
+								<i class="fa fa-caret-down"></i>
+							</span>
+							<span class="nav-icon">
+								<i class="material-icons">&#xe88a;</i>
+							</span>
+							<span class="nav-text"><?php echo $this->trans->get('home')?></span>
+						</a>
+
+						<ul class="nav-sub">
+							<li class="<?php if($this->data['action']=='menu'){ echo 'active'; }?>">
+								<a href="<?php echo $baseUrl?>main/menu" class="no-ajax">
+									<span class="nav-text">
+										<?php echo $this->trans->get('manage_menu')?>
+									</span>
+								</a>
+							</li>
+							<li class="<?php if($this->data['action']=='map_menu'){ echo 'active'; }?>">
+								<a href="<?php echo $baseUrl?>main/map-menu" class="no-ajax">
+									<span class="nav-text">
+										<?php echo $this->trans->get('map_menu')?>
+									</span>
+								</a>
+							</li>
+							<!-- <li class="<?php if($this->data['action']=='sort_menu'){ echo 'active'; }?>">
+								<a href="<?php echo $baseUrl?>main/sort_menu" class="no-ajax">
+									<span class="nav-text">
+										<?php echo $this->trans->get('sort_menu')?>
+									</span>
+								</a>
+							</li> -->
+						</ul>
+					</li>
+					<?php }?>
+					<?php if(!empty($roleAccess['page_see']) || $isAdmin){?>
+					<!-- PAGE -->
+					<li class="<?php if(!empty($this->data['isPage'])){ echo 'active'; }?>">
+						<a>
+							<span class="nav-caret">
+								<i class="fa fa-caret-down"></i>
+							</span>
+							<span class="nav-icon">
+								<i class="material-icons">&#xe24d;</i>
+							</span>
+							<span class="nav-text"><?php echo $this->trans->get('page')?></span>
+						</a>
+						<ul class="nav-sub">
+							<li class="<?php if($this->data['action']=='all-page'){ echo 'active'; }?>">
+								<a href="<?php echo $baseUrl?>page/all-page" class="no-ajax">
+									<span class="nav-text"><?php echo $this->trans->get('all_page')?></span>
+								</a>
+							</li>
+							<!-- <li class="<?php if($this->data['action']=='new-page'){ echo 'active'; }?>">
+								<a href="<?php echo $baseUrl?>page/new-page" class="no-ajax">
+									<span class="nav-text"><?php echo $this->trans->get('add_new')?></span>
+								</a>
+							</li> -->
+						</ul>
+					</li>
+					<?php }?>
+					<?php if(!empty($roleAccess['post_see']) || $isAdmin){?>
+					<!-- POST -->
+					<li class="<?php if(!empty($this->data['isPost'])){ echo 'active'; }?>">
+						<a>
+							<span class="nav-caret">
+								<i class="fa fa-caret-down"></i>
+							</span>
+							<span class="nav-icon">
+								<i class="material-icons">&#xe560;</i>
+							</span>
+							<span class="nav-text"><?php echo $this->trans->get('post')?></span>
+						</a>
+						<ul class="nav-sub">
+							<li class="<?php if($this->data['action']=='all-post'){ echo 'active'; }?>">
+								<a href="<?php echo $baseUrl?>post/all-post" class="no-ajax">
+									<span class="nav-text"><?php echo $this->trans->get('all_post')?></span>
+								</a>
+							</li>
+							<!--
+							<li class="<?php if($this->data['action']=='new-post'){ echo 'active'; }?>">
+								<a href="<?php echo $baseUrl?>post/new-post" class="no-ajax">
+									<span class="nav-text"><?php echo $this->trans->get('add_new')?></span>
+								</a>
+							</li>
+							-->
+							<li class="<?php if($this->data['action']=='category-post'){ echo 'active'; }?>">
+								<a href="<?php echo $baseUrl?>post/category-post" class="no-ajax">
+									<span class="nav-text"><?php echo $this->trans->get('categories')?></span>
+								</a>
+							</li>
+							<!--
+							<li class="<?php if($this->data['action']=='tags-post'){ echo 'active'; }?>">
+								<a href="<?php echo $baseUrl?>post/tags-post" class="no-ajax">
+									<span class="nav-text"><?php echo $this->trans->get('tags')?></span>
+								</a>
+							</li>
+							 -->
+						</ul>
+					</li>
+					<?php }?>
+					<!-- USER -->
+					<li class="<?php if(!empty($this->data['isUser'])){ echo 'active'; }?>">
+						<a>
+							<span class="nav-caret">
+								<i class="fa fa-caret-down"></i>
+							</span>
+							<span class="nav-icon">
+								<i class="material-icons">&#xe7fd;</i>
+							</span>
+							<span class="nav-text"><?php echo $this->trans->get('user')?></span>
+						</a>
+						<ul class="nav-sub">
+							<?php if(!empty($roleAccess['post_see']) || $isAdmin){?>
+							<li class="<?php if($this->data['action']=='all-user'){ echo 'active'; }?>">
+								<a href="<?php echo $baseUrl?>user/all-user" class="no-ajax">
+									<span class="nav-text"><?php echo $this->trans->get('all_user')?></span>
+								</a>
+							</li>
+							<!-- <li class="<?php if($this->data['action']=='new-user'){ echo 'active'; }?>">
+								<a href="<?php echo $baseUrl?>user/new-user" class="no-ajax">
+									<span class="nav-text"><?php echo $this->trans->get('add_new')?></span>
+								</a>
+							</li> -->
+							<?php }?>
+							<?php if(!empty($roleAccess['post_see']) || $isAdmin){?>
+							<li class="<?php if($this->data['action']=='all-role'){ echo 'active'; }?>">
+								<a href="<?php echo $baseUrl?>user/all-role" class="no-ajax">
+									<span class="nav-text"><?php echo $this->trans->get('all_role')?></span>
+								</a>
+							</li>
+							<!-- <li class="<?php if($this->data['action']=='new-role'){ echo 'active'; }?>">
+								<a href="<?php echo $baseUrl?>user/new-role" class="no-ajax">
+									<span class="nav-text"><?php echo $this->trans->get('add_role')?></span>
+								</a>
+							</li> -->
+							<?php }?>
+							<li class="<?php if($this->data['action']=='profile'){ echo 'active'; }?>">
+								<a href="<?php echo $baseUrl?>user/profile" class="no-ajax">
+									<span class="nav-text"><?php echo $this->trans->get('your_profile')?></span>
+								</a>
+							</li>
+						</ul>
+					</li>
+					<!-- MODULE -->
+					<li class="<?php if(!empty($this->data['isModule'])){ echo 'active'; }?>">
+						<a>
+							<span class="nav-caret">
+								<i class="fa fa-caret-down"></i>
+							</span>
+							<span class="nav-icon">
+								<i class="material-icons">&#xe8f0;<span ui-include="'/assets/themeforest/assets/images/i_2.svg'"></span></i>
+							</span>
+							<span class="nav-text"><?php echo $this->trans->get('module')?></span>
+						</a>
+						<ul class="nav-sub">
+							<?php if(!empty($roleAccess['banner_see']) || $isAdmin){?>
+							<li class="<?php if($this->data['action']=='all-banner'){ echo 'active'; }?>">
+								<a href="<?php echo $baseUrl?>module/all-banner" class="no-ajax">
+									<span class="nav-text"><?php echo $this->trans->get('all_banner')?></span>
+								</a>
+							</li>
+							<!-- <li class="<?php if($this->data['action']=='new-banner'){ echo 'active'; }?>">
+								<a href="<?php echo $baseUrl?>module/new-banner" class="no-ajax">
+									<span class="nav-text"><?php echo $this->trans->get('new_banner')?></span>
+								</a>
+							</li> -->
+							<?php }?>
+							<?php if(!empty($roleAccess['slider_see']) || $isAdmin){?>
+							<li class="<?php if($this->data['action']=='all-slider'){ echo 'active'; }?>">
+								<a href="<?php echo $baseUrl?>module/all-slider" class="no-ajax">
+									<span class="nav-text"><?php echo $this->trans->get('all_slider')?></span>
+								</a>
+							</li>
+							<?php }?>
+							<li class="<?php if($this->data['action']=='category-module'){ echo 'active'; }?>">
+								<a href="<?php echo $baseUrl?>module/category-module" class="no-ajax">
+									<span class="nav-text"><?php echo $this->trans->get('categories')?></span>
+								</a>
+							</li>
+							<li class="<?php if($this->data['action']=='carlendar'){ echo 'active'; }?>">
+								<a href="<?php echo $baseUrl?>module/calendar" class="no-ajax">
+									<span class="nav-text"><?php echo $this->trans->get('calendar')?></span>
+								</a>
+							</li>
+							<li class="<?php if($this->data['action']=='poll'){ echo 'active'; }?>">
+								<a href="<?php echo $baseUrl?>module/poll" class="no-ajax">
+									<span class="nav-text"><?php echo $this->trans->get('poll')?></span>
+								</a>
+							</li>
+							<li class="<?php if($this->data['action']=='stats'){ echo 'active'; }?>">
+								<a href="<?php echo $baseUrl?>module/stats" class="no-ajax">
+									<span class="nav-text"><?php echo $this->trans->get('stats')?></span>
+								</a>
+							</li>
+						</ul>
+					</li>
+					<!-- REPORT -->
+					<li class="<?php if(!empty($this->data['isReport'])){ echo 'active'; }?>">
+						<a href="<?php echo $baseUrl?>report/index" class="no-ajax">
+							<span class="nav-icon">
+								<i class="material-icons">&#xe24b;</i>
+							</span>
+							<span class="nav-text"><?php echo $this->trans->get('report')?></span>
+						</a>
+					</li>
+					<!-- SETTING -->
+					<!-- <li class="<?php if(!empty($this->data['isSetting'])){ echo 'active'; }?>">
+						<a href="<?php echo $baseUrl?>setting/index" class="no-ajax">
+							<span class="nav-icon">
+								<i class="material-icons">&#xe8b8;</i>
+							</span>
+							<span class="nav-text"><?php echo $this->trans->get('setting')?></span>
+						</a>
+					</li> -->
+				</ul>
+			</div>
+		</nav>
+	</div>
+	<div flex-no-shrink="">
+		<nav ui-nav="">
+			<ul class="nav">
+				<li><div class="b-b b m-t-sm"></div></li>
+				<li class="no-bg">
+					<a href="<?php echo $baseUrl?>admin/logout">
+						<span class="nav-icon">
+							<i class="material-icons"></i>
+						</span>
+						<span class="nav-text"><?php echo $this->trans->get('logout')?></span>
+					</a>
+				</li>
+			</ul>
+		</nav>
+	</div>
+</div>

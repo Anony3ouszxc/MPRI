@@ -1,0 +1,138 @@
+<?php
+use Apps\Models\Files;
+use Apps\Models\Menu;
+$baseUrl = $this->data['baseUrl'];
+?>
+<div class="navbar navbar-top">
+	<div class="container">
+		<div class="row nav-top">
+			<div class="hidden-sm hidden-xs navbar-brand col-md-1">
+				<a href="/"><img alt="Brand" src="<?php echo $baseUrl?>assets/cms/images/logo-dmsc.png"></a>
+			</div>
+			<div class="col-xs-3 col-md-2 col-sm-1 hidden-lg hidden-md nopadding">
+				<a href="/">
+					<img src="<?php echo $baseUrl?>assets/cms/images/logo-dmsc.png" class="hidden-lg hidden-md img-responsive">
+				</a>
+			</div>
+			<div class=" col-xs-6 col-sm-8 col-lg-7" id="logo-txt">
+				<h3 class="nopadding text-left"><?php echo $this->trans->get('title_home_page','th')?></h3>
+				<h5 class="hidden-xs nopadding text-left"><?php echo $this->trans->get('subtitle_home_page','en')?></h5>
+			</div>
+			<div class="col-xs-3  col-sm-2  col-md-2 nav-lang">
+				<h5 contenteditable="true" class="text-right"><?php echo $this->trans->get('change_lang')?></h5>
+				<div class="text-right">
+					<a class="switch-lang" data-lang="th"><img alt="ไทย" src="<?php echo $baseUrl?>assets/cms/images/flag-th.png"></a>
+					<a class="switch-lang" data-lang="en"><img alt="English" src="<?php echo $baseUrl?>assets/cms/images/flag-en.png"></a>
+				</div>
+			</div>
+			<div class="col-md-2 col-sm-3 col-xs-2 hidden-xs text-custom-size">
+				<h5 class="text-right"><?php echo $this->trans->get('font_size')?></h5>
+				<div class="text-right fontsize-switcher">
+					<a class="btn btn-default btn-sm text-custom-size-small fix" data-size="s"><?php echo $this->trans->get('a')?></a>
+					<a class="btn btn-default btn-sm text-custom-size-medium fix" data-size="m"><?php echo $this->trans->get('a')?></a>
+					<a class="btn btn-default btn-sm text-custom-size-large fix" data-size="l"><?php echo $this->trans->get('a')?></a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="navbar navbar-default navbar-main">
+	<div class="container">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-ex-collapse">
+			<span class="sr-only"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			</button>
+		</div>
+		<?php if( !empty($this->data['menu'])){?>
+		<div class="collapse navbar-collapse" id="navbar-ex-collapse">
+			<ul class="nav navbar-nav nav-primary" id="nav">
+				<?php foreach($this->data['menu'] as $menu){?>
+					<li class="hvr-sweep-to-top">
+						<?php if( is_numeric($menu->page_id) && $menu->page_id > 0){?>
+							<a href="<?php echo $baseUrl.'page-view/' . $menu->page_id?>">
+						<?php } elseif( is_numeric($menu->post_id) && $menu->post_id > 0) {?>
+							<a href="<?php echo $baseUrl.'post-view/' . $menu->post_id?>">
+						<?php } elseif( is_numeric($menu->category_id) && $menu->category_id > 0) {?>
+							<a href="<?php echo $baseUrl.'post-group/' . $menu->category_id?>">
+						<?php } elseif( $menu->url != '' ) { echo '<a href="' . $menu->url. '">'?>
+						<?php } else { echo '<a href="#">'; }?>
+						<?php echo ($this->data['lang']=='en')
+						? empty($menu->name_en)
+							? $menu->name
+							: $menu->name_en
+						: $menu->name;
+						$subMenu = Menu::findByParentId( $menu->menu_id );
+						?>
+						</a><ul class="sub">
+						<?php
+						foreach( $subMenu as $_submenu ){
+						?>
+							<li>
+								<?php if( is_numeric($_submenu->page_id) && $_submenu->page_id > 0){?>
+									<a href="<?php echo $baseUrl.'page-view/' . $_submenu->page_id?>">
+								<?php } else { echo '<a href="#">'; }
+									echo ($this->data['lang']=='en')
+										? empty($_submenu->name_en)
+											? $_submenu->name
+											: $_submenu->name_en
+										: $_submenu->name;
+									?>
+								</a>
+							</li>
+						<?php
+						}
+						?>
+						</ul>
+
+
+					</li>
+				<?php }?>
+				<li class="">
+					<a href="" data-toggle="modal" data-target="#block-search"><i class="fa fa-fw fa-search"></i>&nbsp;</a>
+				</li>
+			</ul>
+		</div>
+		<?php }?>
+	</div>
+</div>
+
+	<?php if( is_object($this->data['slider']) && empty($this->data['noSlider']) ){?>
+		<div class="cover">
+		<div class="owl-carousel">
+			<?php foreach($this->data['slider'] as $slider){
+				$file = Files::find($slider->file_id);
+				?>
+				<div class="cover-image">
+					<div class="txt">
+						<div class="container">
+							<h1 class="color-second text-right heading"><?php echo $slider->attributes['title']?></h1>
+							<p class="text-right subtext"><?php echo $slider->attributes['detail']?></p>
+						</div>
+					</div>
+					<div class="img-hilight">
+						<img src='<?php echo $baseUrl.$file->attributes['thumbpath']?>' alt='<?php echo $slider->attributes['title']?>'>
+					</div>
+				</div>
+			<?php }?>
+		</div>
+		</div>
+	<?php }?>
+	<?php if( !empty($this->data['topData']) ){?>
+		<div class="cover cover-singlepage">
+			<div class="cover-image" style="background-image:url(<?php echo $this->data['topData']['image']?>)"></div>
+			<div class="txt">
+				<div class="container">
+					<div class="row">
+						<div class="col-md-12 text-center">
+							<h1 class="color-second text-right heading"><?php echo $this->data['topData']['title']?></h1>
+							<br>
+							<br>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	<?php }?>
