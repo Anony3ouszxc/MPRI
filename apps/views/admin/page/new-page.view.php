@@ -126,9 +126,11 @@ Banner (ภาพตรงไอคอน, โลโก้หน่วยงา�
 									?>
 									<div class="row form-group row-content" data-index="<?php echo $rowIndex?>">
 										<?php foreach( $row['config'] as $colIndex => $_layout){?>
-											<div class="col-md-<?php echo $_layout?>" <?php if($colIndex == 0){?> style="padding-left:24px" <?php }?> >
+											<div class="col-md-<?php echo $_layout?>" <?php if($colIndex == 0){?> style="padding-left:30px" <?php }?> >
 												<?php if($colIndex == 0){?>
-												<i class="material-icons md-24 text-danger delete-layout" style="position: absolute;margin-left: -24px;top: 0%;"></i>
+												<i class="material-icons md-24 action-icon text-danger delete-layout" style="top:0px;"></i>
+												<i class="material-icons md-24 action-icon move-up" style="top: 24px;"></i>
+												<i class="material-icons md-24 action-icon move-down" style="top: 48px;"></i>
 												<?php }?>
 												<div class="box p-a">
 													<textarea ui-jp="summernote" ui-options="{height: 200}" class="form-control" rows="4" name="<?php echo $rowName?>[content][]">
@@ -259,3 +261,17 @@ Banner (ภาพตรงไอคอน, โลโก้หน่วยงา�
 		</div>
 	</div>
 </div>
+
+<style>
+.ui-helper-hidden-accessible {
+	display:none;
+ }
+.action-icon{
+    cursor: pointer;
+    position: absolute;
+    margin-left: -30px;
+};
+.action-icon:hover{
+    border : 1px dotted black!important;
+};
+</style>

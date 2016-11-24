@@ -157,4 +157,6 @@ return [
 	'banner_image'			   => 'ภาพแบรนเนอร์',
 	'pdf_attach'			   => 'แนบไฟล์ PDF',
 	'container_class' 		   => 'ระบุคลาสเฉพาะหน้า',
+	'intro_page'               => 'หน้า Intro',
+	'intro_title' 			   => 'เชื่อมโยงหน้า Intro',
 ];

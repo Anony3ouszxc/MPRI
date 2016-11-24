@@ -91,6 +91,11 @@
 									<span class="nav-text"><?php echo $this->trans->get('all_page')?></span>
 								</a>
 							</li>
+							<li class="<?php if($this->data['action']=='intro-page'){ echo 'active'; }?>">
+								<a href="<?php echo $baseUrl?>page/intro-page" class="no-ajax">
+									<span class="nav-text"><?php echo $this->trans->get('intro_page')?></span>
+								</a>
+							</li>
 							<!-- <li class="<?php if($this->data['action']=='new-page'){ echo 'active'; }?>">
 								<a href="<?php echo $baseUrl?>page/new-page" class="no-ajax">
 									<span class="nav-text"><?php echo $this->trans->get('add_new')?></span>
