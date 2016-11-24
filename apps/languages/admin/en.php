@@ -83,7 +83,7 @@ return [
 	'menu_management'        => 'Menu management',
 	'change_lang'            => 'switch language',
 	'title_home_page'        => 'Department of Medical Sciences',
-	'subtitle_home_page'     => 'Department of Medical Sciences',
+	'subtitle_home_page'     => 'Medicinal Plant Research Institute',
 	'font_size'              => 'font size',
 	'a'                      => 'a',
 	'under_construction'     => 'Under construction',
@@ -162,4 +162,6 @@ return [
 	'banner_image'			   => 'Banner Image',
 	'pdf_attach'			   => 'PDF attachment',
 	'container_class' 		   => 'Class Container',
+	'intro_page'               => 'Intro Page',
+	'intro_title' 			   => 'mapping intro page',
 ];

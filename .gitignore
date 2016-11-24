@@ -61,3 +61,6 @@ publish
 
 #Arcanist
 .arcconfig
+
+# config
+apps/configs/*

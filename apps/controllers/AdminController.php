@@ -20,6 +20,7 @@ use Apps\Models\Post;
 use Apps\Models\Page;
 use Apps\Models\Embed;
 use Apps\Models\Category;
+use Apps\Models\Intro;
 
 use Cygnite\Common\File\Thumbnail;
 use Cygnite\Common\File\Upload\Upload;
@@ -46,8 +47,9 @@ class AdminController extends AbstractBaseController
 		$this->auth     = Auth::model( '\Apps\Models\User' );
 		$this->baseUrl  = Url::getBase();
 		// set Global parameter
-		$this->params = Config::get( 'global.config', 'params' );
-		$this->mode   = Config::get( 'global.config', 'environment' );
+		$this->params     = Config::get( 'global.config', 'params' );
+		$this->mode       = Config::get( 'global.config', 'environment' );
+		$this->menuConfig = Config::get( 'global.config', 'menu' );
 		// set default lang
 		$this->_initCookie();
 		// set language translator
@@ -106,7 +108,7 @@ class AdminController extends AbstractBaseController
 				}
 			break;
 			case 'page':
-				if( in_array(Url::segment( $this->params['start_segment'] + 2 ),[ 'all-page', 'new-page','edit-page' ]) && empty($this->roleAccess['page_see']) ){
+				if( in_array(Url::segment( $this->params['start_segment'] + 2 ),[ 'all-page', 'new-page','edit-page', 'intro-page' ]) && empty($this->roleAccess['page_see']) ){
 					$allow = 0;
 				}
 			break;
@@ -494,7 +496,7 @@ class AdminController extends AbstractBaseController
 			'action'   => $action,
 			'title'    => 'User Management'
 		);
-		if ( !in_array( $action, ['all-user', 'new-user', 'all-role', 'new-role', 'profile', 'add-user', 'add-role', 'update-profile','edit-user','edit-role','update-user', 'update-role'] ) ) {
+		if ( !in_array( $action, $this->menuConfig['user'] ) ) {
 			$this->redirectTo( 'admin/error' );
 		} else {
 			$template = $action;
@@ -544,7 +546,7 @@ class AdminController extends AbstractBaseController
 				break;
 				case 'new-role':
 					$data['title']    = $this->trans->get('title_new_role');
-					foreach( $this->params['menu'] as $code ){
+					foreach( array_keys($this->menuConfig) as $code ){
 						$menuList[ $code ] = $this->trans->get( $code );
 					}
 					$data['menuList'] = $menuList;
@@ -553,7 +555,7 @@ class AdminController extends AbstractBaseController
 					$template       = 'new-role';
 					$id             = Url::segment( $this->params['start_segment'] + 3);
 					$data['record'] = Role::find($id);
-					foreach( $this->params['menu'] as $code ){
+					foreach( array_keys($this->menuConfig) as $code ){
 						$menuList[ $code ] = $this->trans->get( $code );
 					}
 					$data['menuList'] = $menuList;
@@ -610,15 +612,15 @@ class AdminController extends AbstractBaseController
 				$targetPath = $this->params['avatar_path'] . DS . $filename;
 				move_uploaded_file( $file['tmp_name'], $targetPath );
 				// create thumb section
-				// $thumbPath = realpath($this->params['avatar_path']) . DS . 'thumb' . DS;
-				// $this->checkDir( $thumbPath );
-				// $savePath  = $this->params['avatar_path'] . DS . 'thumb' . DS . 'thumbnail-' . $filename;
+				$thumbPath = realpath($this->params['avatar_path']) . DS . 'thumb' . DS;
+				$this->checkDir( $thumbPath );
+				$savePath  = $this->params['avatar_path'] . DS . 'thumb' . DS . 'thumbnail-' . $filename;
 				// create thumnail 260x260
-				// $this->createThumbnail($targetPath, $thumbPath, 32, 32);
+				$this->createThumbnail($targetPath, $thumbPath, 32, 32);
 				$files->files_id = $fileId;
 				$files->filename = $filename;
 				$files->filepath = $targetPath;
-				$files->thumbpath = $targetPath;
+				$files->thumbpath = $savePath;
 				$files->user_id  = $this->userInfo['user_id'];
 				$files->save();
 			}
@@ -638,9 +640,8 @@ class AdminController extends AbstractBaseController
 				$user->firstname = $data["firstname"];
 				$user->lastname  = $data["lastname"];
 				$user->email     = $data["email"];
-				if( !empty($fileId) ){
-					$user->file_id = $fileId;
-				}
+				$user->file_id = $fileId ? $fileId : 0;
+
 				if( $data['password'] ){
 					$user->password  = $crypt->encode( $data["password"] );
 				}
@@ -719,7 +720,7 @@ class AdminController extends AbstractBaseController
 			'action'   => $action,
 			'title'    => 'Post Management'
 		);
-		if ( !in_array( $action, ['all-post', 'new-post', 'add-post', 'edit-post', 'update-post','category-post', 'form-category', 'add-category','edit-category', 'update-category'] ) ) {
+		if ( !in_array( $action, $this->menuConfig['post'] ) ) {
 			$this->redirectTo( 'admin/error' );
 		} else {
 			$template = $action;
@@ -824,7 +825,7 @@ class AdminController extends AbstractBaseController
 			$category->user_id         = $this->userInfo['user_id'];
 			$category->type            = $type;
 			$category->container_class = $data['container_class'];
-			if( $fileId ){ $category->file_id = $fileId; }
+			$category->file_id         = $fileId ? $fileId : 0;
 			$category->save();
 
 			$this->log( 'activity', 'create new category : ' . $data['name_th'] );
@@ -849,21 +850,21 @@ class AdminController extends AbstractBaseController
 				$fileId++;
 				$files  = new Files();
 
-				$this->checkDir( $this->params['post_path'] );
+				$this->checkDir( $this->params['post_path'], 'post' );
 				$filename   = str_replace( " ", '_', $this->security->sanitize( $file['name'] ) );
 				$filename   = Files::convertFilename( $filename );
 				$targetPath = $this->params['post_path'] . DS . $filename;
 				move_uploaded_file( $file['tmp_name'], $targetPath );
 				// create thumb section
-				// $thumbPath = realpath($this->params['post_path']) . DS . 'thumb' . DS;
-				// $this->checkDir( $thumbPath );
-				// $savePath  = $this->params['post_path'] . DS . 'thumb' . DS . 'thumbnail-' . $filename;
+				$thumbPath = realpath($this->params['post_path']) . DS . 'thumb' . DS;
+				$this->checkDir( $thumbPath );
+				$savePath  = $this->params['post_path'] . DS . 'thumb' . DS . 'thumbnail-' . $filename;
 				// create thumnail 260x260
-				// $this->createThumbnail($targetPath, $thumbPath, 260, 260);
+				$this->createThumbnail($targetPath, $thumbPath, 260, 260);
 				$files->files_id = $fileId;
 				$files->filename = $filename;
 				$files->filepath = $targetPath;
-				$files->thumbpath = $targetPath;
+				$files->thumbpath = $savePath;
 				$files->user_id  = $this->userInfo['user_id'];
 				$files->save();
 			}
@@ -891,19 +892,18 @@ class AdminController extends AbstractBaseController
 			} else {
 				$post = new Post();
 			}
-
 			$post->title           = $data['title'];
-			$post->detail          = $data['detail'];
+			$post->detail          = html_entity_decode($data['detail']);
 			$post->category_id     = $data['category_id'];
 			$post->priority        = $data['priority'];
 			$post->user_id         = $this->userInfo['user_id'];
 			$post->publish         = !empty($data['publish'])?'on':'off';
-			$post->publish_start   = $data['publish_start'];
-			$post->publish_end     = $data['publish_end'];
+			$post->publish_start   = $data['publish_start'] ? $data['publish_start'] : date("Y-m-d H:i:s");
+			$post->publish_end     = $data['publish_end']  ? $data['publish_end'] : date("Y-m-d H:i:s");
 			$post->last_publish    = date('Y-m-d H:i:s');
 			$post->container_class = $data['container_class'];
-			if( $fileId ){ $post->file_id = $fileId; }
-			if( $pdfId ){ $post->pdf_id = $pdfId; }
+			$post->file_id 		   = $fileId ? $fileId : 0;
+			$post->pdf_id          = $pdfId ? $pdfId : 0;
 			$post->save();
 
 			$this->log( 'activity', 'create new post : ' . $data['title'] );
@@ -919,7 +919,7 @@ class AdminController extends AbstractBaseController
 			'action'   => $action,
 			'title'    => 'Page Management'
 		);
-		if ( !in_array( $action, ['all-page', 'new-page','add-page', 'edit-page', 'delete-page', 'update-page'] ) ) {
+		if ( !in_array( $action, $this->menuConfig['page'] ) ) {
 			$this->redirectTo( 'admin/error' );
 		} else {
 			$template = $action;
@@ -950,9 +950,41 @@ class AdminController extends AbstractBaseController
 				case 'delete-page':
 					$this->deletePage();
 				break;
+				case 'intro-page':
+					$data['title']    = $this->trans->get('intro_page');
+					$pageModel        = new Page();
+					$record           = $pageModel->getList();
+					$data['pageList'] = $record['data'];
+					$data['record']   = Intro::first();
+				break;
+				case 'update-intro':
+					$this->updateIntro();
+				break;
 			}
 			$this->render( 'page/' . $template, $data );
 		}
+	}
+
+	protected function updateIntro()
+	{
+
+		$input = Input::make();
+		if( $input->hasPost('data') ){
+			$data = $input->post('data');
+			$intro = Intro::first();
+			if( !$intro->count() ){
+				$intro = new Intro();
+			} else {
+				$intro = Intro::find( $intro->offsetGet(0)->id );
+			}
+			$intro->page_id       = $data['page_id'];
+			$intro->publish       = !empty($data['publish']) ? $data['publish'] : 'off';
+			$intro->publish_start = !empty($data['publish_start']) ? $data['publish_start'] : date("Y-m-d H:i:s");
+			$intro->publish_end   = !empty($data['publish_end']) ? $data['publish_end'] : date("Y-m-d H:i:s");
+			$intro->save();
+		}
+		$this->redirectTo( 'page/intro-page' );
+		exit;
 	}
 
 	protected function deletePage()
@@ -982,15 +1014,15 @@ class AdminController extends AbstractBaseController
 				$targetPath = $this->params['page_path'] . DS . $filename;
 				move_uploaded_file( $file['tmp_name'], $targetPath );
 				// create thumb section
-				// $thumbPath = realpath($this->params['page_path']) . DS . 'thumb' . DS;
-				// $this->checkDir( $thumbPath );
-				// $savePath  = $this->params['page_path'] . DS . 'thumb' . DS . 'thumbnail-' . $filename;
+				$thumbPath = realpath($this->params['page_path']) . DS . 'thumb' . DS;
+				$this->checkDir( $thumbPath );
+				$savePath  = $this->params['page_path'] . DS . 'thumb' . DS . 'thumbnail-' . $filename;
 				// create thumnail 260x260
-				// $this->createThumbnail($targetPath, $thumbPath, 260, 260);
+				$this->createThumbnail($targetPath, $thumbPath, 260, 260);
 				$files->files_id = $fileId;
 				$files->filename = $filename;
 				$files->filepath = $targetPath;
-				$files->thumbpath = $targetPath;
+				$files->thumbpath = $savePath;
 				$files->user_id  = $this->userInfo['user_id'];
 				$files->save();
 			}
@@ -1023,15 +1055,14 @@ class AdminController extends AbstractBaseController
 			}
 			$page->title           = $data['title'];
 			$page->publish         = !empty($data['publish'])?'on':'off';
-			$page->publish_start   = $data['publish_start'];
-			$page->publish_end     = $data['publish_end'];
+			$page->publish_start   = $data['publish_start'] ? $data['publish_start'] : date("Y-m-d H:i:s");
+			$page->publish_end     = $data['publish_end'] ? $data['publish_end'] : date("Y-m-d H:i:s");
 			$page->last_publish    = date('Y-m-d H:i:s');
 			$page->container_class = $data['container_class'];
-			if( !empty($data['content']) ){
-				$page->content = serialize($data['content']);
-			}
-			if( $fileId ){ $page->file_id = $fileId; }
-			if( $pdfId ){ $page->pdf_id = $pdfId; }
+			$page->content         = !empty($data['content']) ? serialize($data['content']) : '';
+			$page->view            = $id ? $page->view : 0;
+			$page->file_id         = $fileId ? $fileId : 0;
+			$page->pdf_id          = $pdfId ? $pdfId : 0;
 			$page->save();
 			if( $id ){
 				$this->log( 'activity', 'update page id : ' . $id );
@@ -1122,7 +1153,7 @@ class AdminController extends AbstractBaseController
 			'title'    => 'Module',
 			'action'   => $action
 		);
-		if ( !in_array( $action, ['all-banner', 'new-banner', 'all-slider', 'new-slider', 'calendar', 'add-banner', 'add-slider', 'edit-banner','edit-slider','update-banner','update-slider','poll','stats','save-calendar','save-stats','save-poll','category-module', 'form-category', 'add-category','edit-category', 'update-category'] ) ) {
+		if ( !in_array( $action, $this->menuConfig['module'] ) ) {
 			$this->redirectTo( 'admin/error' );
 		} else {
 			$template = $action;
@@ -1286,6 +1317,7 @@ class AdminController extends AbstractBaseController
 			} else {
 				$banner = new Banner();
 			}
+
 			$banner->title         = $data['title'];
 			$banner->detail        = $data['detail'];
 			$banner->category_id   = $data['category_id'];
@@ -1296,15 +1328,15 @@ class AdminController extends AbstractBaseController
 			$banner->publish_start = $data['publish_start'];
 			$banner->publish_end   = $data['publish_end'];
 			$banner->last_publish  = date('Y-m-d H:i:s');
-			if( $fileId ){
-				$banner->file_id     = $fileId;
-			}
+			$banner->file_id       = $fileId ? $fileId : 0;
 			$banner->save();
+
 			if( $id ){
 				$this->log( 'activity', 'update banner id : ' . $id );
 			} else {
 				$this->log( 'activity', 'create new banner : ' . $file['name'] );
 			}
+
 			$this->redirectTo( 'module/all-banner' );
 		}
 		exit;
@@ -1326,14 +1358,14 @@ class AdminController extends AbstractBaseController
 				$filename   = Files::convertFilename( $filename );
 				$targetPath = $this->params['slider_path'] . DS . $filename;
 				move_uploaded_file( $file['tmp_name'], $targetPath );
-				// $thumbPath = realpath($this->params['slider_path']) . DS . 'thumb' . DS;
-				// $this->checkDir( $thumbPath );
-				// $savePath  = $this->params['slider_path'] . DS . 'thumb' . DS . 'thumbnail-' . $filename;
-				// $this->createThumbnail($targetPath, $thumbPath, 1280, 400);
+				$thumbPath = realpath($this->params['slider_path']) . DS . 'thumb' . DS;
+				$this->checkDir( $thumbPath );
+				$savePath  = $this->params['slider_path'] . DS . 'thumb' . DS . 'thumbnail-' . $filename;
+				$this->createThumbnail($targetPath, $thumbPath, 1280, 400);
 				$files->files_id = $fileId;
 				$files->filename = $filename;
 				$files->filepath = $targetPath;
-				$files->thumbpath = $targetPath;
+				$files->thumbpath = $savePath;
 				$files->user_id  = $this->userInfo['user_id'];
 				$files->save();
 			}
@@ -1356,15 +1388,15 @@ class AdminController extends AbstractBaseController
 			$slider->publish_end    = $data['publish_end'];
 			$slider->last_publish   = date('Y-m-d H:i:s');
 			$slider->link           = $data['link'];
-			if( $fileId ){
-				$slider->file_id     = $fileId;
-			}
+			$slider->file_id        = $fileId ? $fileId : 0;
 			$slider->save();
+
 			if( $id ){
 				$this->log( 'activity', 'update silder id : ' . $id );
 			} else {
 				$this->log( 'activity', 'create new silder : ' . $file['name'] );
 			}
+
 			$this->redirectTo( 'module/all-slider' );
 		}
 		exit;
@@ -1419,13 +1451,27 @@ class AdminController extends AbstractBaseController
 	protected function checkDir( $path, $type="" ){
 		if( !is_dir($path) ){
 			if( $type ){
-				$path = realpath(ASSETS_PATH) . DS . $type;
+				$path = realpath(ASSETS_PATH) . DS . $type ;
 			}
-			if ( !mkdir( $path, 0755, true ) ) {
+			if ( !mkdir( $path, 0755 ) ) {
+				show(error_get_last());
 				die( 'failed create folder..' . $path);
 			}
 		}
-		chmod( $path, 0755 );
+	}
+
+	function mkdirs($dir, $mode = 0777, $recursive = true) {
+	  if( is_null($dir) || $dir === "" ){
+	    return FALSE;
+	  }
+	  if( is_dir($dir) || $dir === "/" ){
+	    return TRUE;
+	  }
+	  if( $this->mkdirs(dirname($dir), $mode, $recursive) ){
+	  	show($dir);
+	    return mkdir($dir, $mode);
+	  }
+	  return FALSE;
 	}
 
 	public function getProfileAction(){
